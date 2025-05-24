@@ -1,7 +1,9 @@
-# REST-api для онлайн магазина
+## REST-api для онлайн магазина
 
-## Пользователь
-- ### Регистрация-`POST /api/auth/register`
+ [Ссылка на задание](https://github.com/zeroc0de2022/e-com-api-test/blob/main/API%20%D0%B4%D0%BB%D1%8F%20e-com.md)
+
+### Пользователь
+- #### Регистрация-`POST /api/auth/register`
 Запрос:
 ```json
 {
@@ -17,7 +19,7 @@
   "token_type": "Bearer"
 }
 ```
-- ### Авторизация - `POST /api/login`   
+- #### Авторизация - `POST /api/login`   
 Запрос:
 ```json
 {
