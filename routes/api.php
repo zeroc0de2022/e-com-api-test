@@ -31,3 +31,8 @@ Route::prefix('products')->controller(ProductController::class)->group(function 
     Route::get('/{id}', 'show');
 });
 
+Route::middleware('auth:sanctum')->prefix('cart')->controller(\App\Http\Controllers\Api\CartController::class)->group(function () {
+    Route::get('/', 'index');
+    Route::post('/items', 'addItem');
+    Route::delete('/items/{id}', 'removeItem');
+});
