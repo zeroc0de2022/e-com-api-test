@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('payment_methods', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('payment_url_template'); // пример: "/payments/mock/{order_id}"
+            $table->string('payment_url'); // пример: "/payments/mock/{order_id}"
             $table->timestamps();
         });
     }

@@ -44,7 +44,7 @@ class CheckoutController extends Controller
             DB::commit();
 
             // Подставить {order_id} в шаблон ссылки
-            $paymentUrl = str_replace('{order_id}', $order->id, $paymentMethod->payment_url_template);
+            $paymentUrl = str_replace('{order_id}', $order->id, $paymentMethod->payment_url);
             return response()->json([
                 'message' => 'Order created',
                 'payment_url' => url($paymentUrl),
