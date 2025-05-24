@@ -1,9 +1,14 @@
 <?php
 
+use App\Http\Controllers\Api\CheckoutController;
+use App\Http\Controllers\Api\PaymentCallbackController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\CartController;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -31,8 +36,11 @@ Route::prefix('products')->controller(ProductController::class)->group(function 
     Route::get('/{id}', 'show');
 });
 
-Route::middleware('auth:sanctum')->prefix('cart')->controller(\App\Http\Controllers\Api\CartController::class)->group(function () {
+Route::middleware('auth:sanctum')->prefix('cart')->controller(CartController::class)->group(function () {
     Route::get('/', 'index');
     Route::post('/items', 'addItem');
     Route::delete('/items/{id}', 'removeItem');
 });
+
+Route::middleware('auth:sanctum')->post('/checkout', [CheckoutController::class, 'checkout']);
+Route::get('/payments/mock/{order}', [PaymentCallbackController::class, 'markAsPaid']);

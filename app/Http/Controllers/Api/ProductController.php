@@ -11,7 +11,6 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $query = Product::query();
-
         if ($request->has('sort')) {
             if ($request->sort === 'price_asc') {
                 $query->orderBy('price', 'asc');
@@ -20,20 +19,17 @@ class ProductController extends Controller
                 $query->orderBy('price', 'desc');
             }
         }
-
         return response()->json($query->get());
     }
 
     public function show($id)
     {
         $product = Product::find($id);
-
         if (!$product) {
             return response()->json([
                 'message' => 'Product not found'
             ], 404);
         }
-
         return response()->json($product);
     }
 }
