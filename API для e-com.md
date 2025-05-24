@@ -1,5 +1,8 @@
 # Тестовое задание “API для e-com”
 
+[Реализация](https://github.com/zeroc0de2022/e-com-api-test/blob/main/README.md)
+
+
 **Задание:**  
 Разработать REST-api для онлайн магазина  
 Структура данных:
