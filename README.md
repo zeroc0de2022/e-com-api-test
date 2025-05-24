@@ -1,66 +1,200 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# REST-api для онлайн магазина
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Пользователь
+- ### Регистрация-`POST /api/auth/register`
+Запрос:
+```json
+{
+    "name": "Test User",
+    "email": "test@example.com",
+    "password": "secret123"
+}
+```  
+Ответ:
+```json
+{
+  "access_token": "1|abcdef123456...token...",
+  "token_type": "Bearer"
+}
+```
+- ### Авторизация - `POST /api/login`   
+Запрос:
+```json
+{
+  "email": "test@example.com",
+  "password": "secret123"
+}
+```
+Ответ:
+```json
+{
+  "access_token": "1|abcdef123456...token...",
+  "token_type": "Bearer"
+}
+```
+- ### Выход: `POST /api/logout`
+Ответ:
+```json
+{
+  "message": "Logged out"
+}
+```
+## Товары
+- ### Получение списка товаров `GET /api/products`
+Пример запроса с сортировкой:`GET /api/products?sort=price_asc`
+Ответ:
+```json
+[
+  {
+    "id": 1,
+    "name": "Product A",
+    "description": "Test product",
+    "price": 9.99
+  },
+  {
+    "id": 2,
+    "name": "Product B",
+    "description": "Another product",
+    "price": 14.99
+  }
+]
+```
+- ### Получение товара по ID: `GET /api/products/{id}`
+Ответ:
+```json
+{
+  "id": 1,
+  "name": "Product A",
+  "description": "Test product",
+  "price": 9.99
+}
+```
 
-## About Laravel
+## Корзина
+- ### Добавление товара в корзину: `POST /api/cart/items`
+Запрос
+```json
+{
+  "product_id": 1,
+  "quantity": 2
+}
+```
+Ответ
+```json
+{
+  "message": "Item added to cart"
+}
+```
+- ### Удаление товара из корзины: `DELETE /api/cart/items/{id}`
+Запрос `DELETE /api/cart/items/3`  
+Ответ:
+```json
+{
+  "message": "Item removed from cart"
+}
+```
+- ### Получение корзины: `GET /api/cart`
+ответ:
+```json
+{
+  "id": 5,
+  "user_id": 1,
+  "items": [
+    {
+      "id": 10,
+      "product_id": 1,
+      "quantity": 2,
+      "product": {
+        "name": "Product A",
+        "price": 9.99
+      }
+    }
+  ]
+}
+```
+## Заказы
+- ### Оформить заказ: `POST /api/checkout`
+Запрос
+```json
+{
+  "payment_method_id": 1
+}
+```
+Ответ:
+```json
+{
+  "message": "Order created",
+  "payment_url": "http://site.com/api/payments/mock/12"
+}
+```
+- ### Подтверждение оплаты: `GET /api/payments/mock/{order_id}`
+Запрос: `GET /api/payments/mock/12`
+Ответ:
+```json
+{
+  "message": "Order marked as paid"
+}
+```
+- ### Получить список заказов: `GET /api/orders`
+Запрос с фильтрацией и сортировкой:
+```
+GET /api/orders?status=paid&sort=date_desc
+```
+Ответ:
+```json
+[
+  {
+    "id": 1,
+    "status": "paid",
+    "created_at": "2025-05-24T18:00:00Z",
+    "payment_method": {
+      "name": "MockPay"
+    }
+  }
+]
+```
+- ### Получить заказ по ID: `GET /api/orders/{id}`
+Запрос:
+```
+GET /api/orders/1
+```
+Ответ: 
+```json
+{
+  "id": 1,
+  "status": "paid",
+  "items": [
+    {
+      "product_id": 1,
+      "quantity": 2,
+      "price": 9.99
+    }
+  ],
+  "payment_method": {
+    "name": "MockPay"
+  }
+}
+```
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Ссылки оплаты
+- Пример: `/payments/callback/{order_id}`
+- При переходе по ссылке вызывается `PUT /api/orders/{id}/paid`
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Фоновая задача
+- Scheduler проверяет заказы со статусом "pending", старше 2 минут
+- Обновляет статус на "cancelled"
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Тесты
+- `php artisan test --filter=AuthTest` - Авторизация
+- `php artisan test --filter=CartTest` - Добавление/удаление из корзины
+- `php artisan test --filter=CheckoutTest` - Тайм-аут заказов
+- `php artisan test --filter=PaymentCallbackTest` - Оплата корзины и создание заказа
 
-## Learning Laravel
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
 
-## Laravel Sponsors
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
 
-### Premium Partners
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
 
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
